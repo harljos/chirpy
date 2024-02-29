@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -17,7 +16,7 @@ func (cfg *apiConfig) handlerCreateChirp(w http.ResponseWriter, req *http.Reques
 	type parameters struct {
 		Body string `json:"body"`
 	}
-	
+
 	decoder := json.NewDecoder(req.Body)
 	params := parameters{}
 	err := decoder.Decode(&params)
@@ -39,7 +38,7 @@ func (cfg *apiConfig) handlerCreateChirp(w http.ResponseWriter, req *http.Reques
 	}
 
 	respondWithJSON(w, http.StatusCreated, Chirp{
-		ID: chirp.ID,
+		ID:   chirp.ID,
 		Body: chirp.Body,
 	})
 }
@@ -58,32 +57,6 @@ func validateChirp(body string) (string, error) {
 
 	msg := getCleanedBody(body, badWords)
 	return msg, nil
-}
-
-func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	dat, err := json.Marshal(payload)
-	if err != nil {
-		log.Printf("Error marshalling JSON: %s", err)
-		w.WriteHeader(500)
-		return
-	}
-	w.WriteHeader(code)
-	w.Write(dat)
-}
-
-func respondWithError(w http.ResponseWriter, code int, msg string) {
-	if code > 499 {
-		log.Printf("Responding with 5XX error %s", msg)
-	}
-
-	type errorResponse struct {
-		Error string `json:"error"`
-	}
-
-	respondWithJSON(w, code, errorResponse{
-		Error: msg,
-	})
 }
 
 func getCleanedBody(body string, badWords map[string]struct{}) string {
