@@ -4,17 +4,23 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/harljos/chirpy/internal/database"
+	"github.com/joho/godotenv"
 )
 
 type apiConfig struct {
 	fileserverHits int
 	DB             *database.DB
+	jwtSecret      string
 }
 
 func main() {
+	godotenv.Load()
+	jwtSecret := os.Getenv("JWT_SECRET")
+
 	db, err := database.NewDB("database.json")
 	if err != nil {
 		log.Fatal(err)
@@ -32,6 +38,7 @@ func main() {
 	apiCfg := apiConfig{
 		fileserverHits: 0,
 		DB:             db,
+		jwtSecret: jwtSecret,
 	}
 
 	const filepathRoot = "."
@@ -51,6 +58,7 @@ func main() {
 	apiRouter.Get("/chirps/{chirpID}", apiCfg.handlerGetChirpByID)
 	apiRouter.Post("/users", apiCfg.handlerCreateUser)
 	apiRouter.Post("/login", apiCfg.handlerLoginUser)
+	apiRouter.Put("/users", apiCfg.handlerUpdateUser)
 	router.Mount("/api", apiRouter)
 
 	adminRouter := chi.NewRouter()
