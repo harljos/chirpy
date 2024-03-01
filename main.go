@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 
@@ -19,9 +20,18 @@ func main() {
 		log.Fatal(err)
 	}
 
+	dbg := flag.Bool("debug", false, "Enable debug mode")
+	flag.Parse()
+	if dbg != nil && *dbg {
+		err := db.ResetDB()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	apiCfg := apiConfig{
 		fileserverHits: 0,
-		DB: db,
+		DB:             db,
 	}
 
 	const filepathRoot = "."
@@ -40,6 +50,7 @@ func main() {
 	apiRouter.Get("/chirps", apiCfg.handlerGetChirps)
 	apiRouter.Get("/chirps/{chirpID}", apiCfg.handlerGetChirpByID)
 	apiRouter.Post("/users", apiCfg.handlerCreateUser)
+	apiRouter.Post("/login", apiCfg.handlerLoginUser)
 	router.Mount("/api", apiRouter)
 
 	adminRouter := chi.NewRouter()
