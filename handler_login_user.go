@@ -10,13 +10,13 @@ import (
 
 func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, req *http.Request) {
 	type parameters struct {
-		Email            string `json:"email"`
-		Password         string `json:"password"`
-		ExpiresInSeconds int    `json:"expires_in_seconds"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 	type response struct {
 		User
-		Token string `json:"token"`
+		Token        string `json:"token"`
+		RefreshToken string `json:"refresh_token"`
 	}
 
 	decoder := json.NewDecoder(req.Body)
@@ -33,15 +33,12 @@ func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	const twentyFourHrs = 86400
-
-	if params.ExpiresInSeconds == 0 {
-		params.ExpiresInSeconds = twentyFourHrs
-	} else if params.ExpiresInSeconds > twentyFourHrs {
-		params.ExpiresInSeconds = twentyFourHrs
+	accessToken, err := auth.MakeJWT(user.ID, "chirpy-access", cfg.jwtSecret, time.Hour)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't make JWT")
+		return
 	}
-
-	token, err := auth.MakeJWT(user.ID, cfg.jwtSecret, time.Duration(params.ExpiresInSeconds)*time.Second)
+	refreshToken, err := auth.MakeJWT(user.ID, "chirpy-refresh", cfg.jwtSecret, time.Duration(1440)*time.Hour)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't make JWT")
 		return
@@ -52,6 +49,7 @@ func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, req *http.Request)
 			Email: user.Email,
 			ID:    user.ID,
 		},
-		Token: token,
+		Token:        accessToken,
+		RefreshToken: refreshToken,
 	})
 }

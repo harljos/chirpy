@@ -10,8 +10,8 @@ import (
 
 func (cfg *apiConfig) handlerUpdateUser(w http.ResponseWriter, req *http.Request) {
 	type parameters struct {
-		Email            string `json:"email"`
-		Password         string `json:"password"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 	type response struct {
 		User
@@ -52,7 +52,7 @@ func (cfg *apiConfig) handlerUpdateUser(w http.ResponseWriter, req *http.Request
 	respondWithJSON(w, http.StatusOK, response{
 		User: User{
 			Email: user.Email,
-			ID: user.ID	,
+			ID:    user.ID,
 		},
 	})
 }
