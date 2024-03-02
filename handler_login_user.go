@@ -33,14 +33,14 @@ func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	accessToken, err := auth.MakeJWT(user.ID, "chirpy-access", cfg.jwtSecret, time.Hour)
+	accessToken, err := auth.MakeJWT(user.ID, cfg.jwtSecret, time.Hour, auth.TokenTypeAccess)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't make JWT")
+		respondWithError(w, http.StatusInternalServerError, "Couldn't create access JWT")
 		return
 	}
-	refreshToken, err := auth.MakeJWT(user.ID, "chirpy-refresh", cfg.jwtSecret, time.Duration(1440)*time.Hour)
+	refreshToken, err := auth.MakeJWT(user.ID, cfg.jwtSecret, time.Duration(1440)*time.Hour, auth.TokenTypeRefresh)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't make JWT")
+		respondWithError(w, http.StatusInternalServerError, "Couldn't create refresh JWT")
 		return
 	}
 
