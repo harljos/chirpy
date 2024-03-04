@@ -6,8 +6,9 @@ import (
 )
 
 type User struct {
-	Email string `json:"email"`
-	ID    int    `json:"id"`
+	Email       string `json:"email"`
+	ID          int    `json:"id"`
+	IsChirpyRed bool   `json:"is_chirpy_red"`
 }
 
 func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, req *http.Request) {
@@ -33,5 +34,6 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, req *http.Request
 	respondWithJSON(w, http.StatusCreated, User{
 		ID:    user.ID,
 		Email: user.Email,
+		IsChirpyRed: user.IsChirpyRed,
 	})
 }

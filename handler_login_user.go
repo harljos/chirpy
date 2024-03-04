@@ -46,8 +46,9 @@ func (cfg *apiConfig) handlerLoginUser(w http.ResponseWriter, req *http.Request)
 
 	respondWithJSON(w, http.StatusOK, response{
 		User: User{
-			Email: user.Email,
-			ID:    user.ID,
+			Email:       user.Email,
+			ID:          user.ID,
+			IsChirpyRed: user.IsChirpyRed,
 		},
 		Token:        accessToken,
 		RefreshToken: refreshToken,

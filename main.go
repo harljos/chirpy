@@ -62,6 +62,7 @@ func main() {
 	apiRouter.Post("/refresh", apiCfg.handlerRefresh)
 	apiRouter.Post("/revoke", apiCfg.handlerRevoke)
 	apiRouter.Delete("/chirps/{chirpID}", apiCfg.handlerDeleteChirp)
+	apiRouter.Post("/polka/webhooks", apiCfg.handlerUpgrageUserWebhook)
 	router.Mount("/api", apiRouter)
 
 	adminRouter := chi.NewRouter()
