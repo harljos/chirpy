@@ -15,11 +15,13 @@ type apiConfig struct {
 	fileserverHits int
 	DB             *database.DB
 	jwtSecret      string
+	polkaKey       string
 }
 
 func main() {
 	godotenv.Load()
 	jwtSecret := os.Getenv("JWT_SECRET")
+	polkaKey := os.Getenv("POLKA_KEY")
 
 	db, err := database.NewDB("database.json")
 	if err != nil {
@@ -38,7 +40,8 @@ func main() {
 	apiCfg := apiConfig{
 		fileserverHits: 0,
 		DB:             db,
-		jwtSecret: jwtSecret,
+		jwtSecret:      jwtSecret,
+		polkaKey:       polkaKey,
 	}
 
 	const filepathRoot = "."
