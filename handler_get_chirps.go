@@ -15,13 +15,33 @@ func (cfg *apiConfig) handlerGetChirps(w http.ResponseWriter, req *http.Request)
 		return
 	}
 
+	authorID := req.URL.Query().Get("author_id")
+
 	chirps := []Chirp{}
-	for _, dbChirp := range dbChirps {
-		chirps = append(chirps, Chirp{
-			ID:   dbChirp.ID,
-			Body: dbChirp.Body,
-			Author_ID: dbChirp.Author_ID,
-		})
+	if authorID != "" {
+		authorIDInt, err := strconv.Atoi(authorID)
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Couldn't parse author ID")
+			return
+		}
+
+		for _, dbChirp := range dbChirps {
+			if dbChirp.Author_ID == authorIDInt {
+				chirps = append(chirps, Chirp{
+					ID:        dbChirp.ID,
+					Body:      dbChirp.Body,
+					Author_ID: dbChirp.Author_ID,
+				})
+			}
+		}
+	} else {
+		for _, dbChirp := range dbChirps {
+			chirps = append(chirps, Chirp{
+				ID:        dbChirp.ID,
+				Body:      dbChirp.Body,
+				Author_ID: dbChirp.Author_ID,
+			})
+		}
 	}
 
 	sort.Slice(chirps, func(i, j int) bool {
@@ -42,12 +62,12 @@ func (cfg *apiConfig) handlerGetChirpByID(w http.ResponseWriter, req *http.Reque
 	dbChirp, err := cfg.DB.GetChirp(id)
 	if err != nil {
 		respondWithError(w, http.StatusNotFound, "Couldn't get chirp")
-		return 
+		return
 	}
 
 	respondWithJSON(w, http.StatusOK, Chirp{
-		ID: dbChirp.ID,
-		Body: dbChirp.Body,
+		ID:        dbChirp.ID,
+		Body:      dbChirp.Body,
 		Author_ID: dbChirp.Author_ID,
 	})
 }
